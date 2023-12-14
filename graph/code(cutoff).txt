@@ -1,0 +1,44 @@
+setwd("")          #设置工作目录
+
+library(foreign)
+library("pheatmap")
+library("ggplot2")
+library("ggplotify")
+library("cowplot")
+library("survivalROC")
+work=read.csv(".csv")           #读取文件
+#首行自己设置一组数值
+cutoff<-1825
+
+SROC=survivalROC(Stime = work$OS, status =work$Status,
+                 marker=work$score, predict.time =cutoff, method="KM")
+cut.op=SROC$cut.values[which.max(SROC$TP-SROC$FP)]
+cut.op
+
+work$Status=factor(work$Status, labels = c("0","1"))
+
+p2<-ggplot(data=work)+geom_point(aes(x=seq(0:380),y=OS/12,color=Status))+scale_x_continuous(breaks = seq(0, 380, 50))+scale_y_continuous(breaks = seq(0, 12,3))
+#380为所有行数减1，包含行名总共384行,所以首行自己设置一组
+
+p3=p2+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+            panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  labs(x="",y="Follow up years")+theme(axis.line = element_line(size=1,colour = "black"))+
+  geom_vline(aes(xintercept=171), colour="#BB0000", linetype="dashed")
+#xintercept=160为低风险人数
+
+p3
+
+risk<-work[order(as.numeric(work$score)),]
+
+risk$group<-ifelse(risk$score>-0.263, "high_risk", "low_risk")
+
+table(risk$group)
+#根据osb（评分）分成高低组
+
+p4<-ggplot(data=risk)+geom_point(aes(x=seq(0:380),y=score, color=group))+scale_x_continuous(breaks = seq(0, 380, 50))+scale_y_continuous(breaks = seq(-2, 5,1))+geom_vline(aes(xintercept=171), colour="#BB0000",linetype="dashed")
+
+p5=p4+theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(),panel.background = element_blank(), axis.line = element_line(colour = "black"))+labs(x="", y="Risk score")+theme(axis.line = element_line(size=1,colour="black"))
+
+p5
+
+

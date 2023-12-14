@@ -1,0 +1,19 @@
+library(ggalluvial)
+rt=read.csv("")
+ggplot(as.data.frame(rt),
+       aes(axis1 =group,axis2 = TCGA.subtype, fill = group))+
+    geom_flow()+
+    geom_alluvium(aes(fill = group),
+                  curve_type = "sine") +
+    scale_fill_manual(values = c(A = "#B17BAE", 
+                                 B = "#A4CEB9")) +
+    guides(fill = "none") +
+    geom_stratum(alpha = .2) +
+    geom_text(stat = "stratum", 
+              size=3,
+              aes(label = after_stat(stratum)),
+              reverse = T) +
+    scale_x_continuous(breaks = 1:2, 
+                       expand = c(0.2,0.2),
+                       labels = c("group", "TCGA.subtype")) +
+    theme_void()

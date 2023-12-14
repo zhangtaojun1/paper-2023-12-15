@@ -1,0 +1,25 @@
+setwd("")
+library(foreign)
+
+library(Matrix)
+work=read.csv(".csv")    
+
+head(work)
+
+library(timeROC)
+
+library(survival)
+
+ROC.DSST<-timeROC(T=work$OS,delta=work$status,
+                  marker=work$score,cause=1,
+                  weighting="marginal",
+                  times=c(12,36,60),ROC=TRUE,iid = TRUE)
+ROC.DSST
+par(lwd=0.1, bty="n")
+plot(ROC.DSST,time=12,col="#bc92bc",lwd=5,title=FALSE)       
+plot(ROC.DSST,time=36,,col="#1d2a75",add=TRUE,lwd=5) 
+plot(ROC.DSST,time=60,add=TRUE,col="#0d7c7c",lwd=5)
+
+legend("right",c("Y-1","Y-3","Y-5"),col=c("#bc92bc","#1d2a75","#0d7c7c"),lty=1,lwd=3,bty="n")
+print(ROC.DSST)
+confint(ROC.DSST)$CI_AUC

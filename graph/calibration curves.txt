@@ -1,0 +1,36 @@
+library(survival)
+library(rms)
+library(PredictABEL)
+dd <-read.csv(".csv")
+
+options(datadist = "dd")
+head(dd)
+
+
+cph1 <- cph(Surv(OS, Status) ~points, data =dd, x = TRUE,
+            y = TRUE, surv = TRUE,time.inc=12)
+cal1 <- calibrate(cph1, cmethod = "KM", method = "boot", u =12, m = 40, B = 228)
+plot(cal1, lwd = 2, lty = 1, errbar.col ="#00468B99",
+     xlab = "Nomogram-Predicted OS", ylab = "Actual probability of OS",
+     col ="#1B191999", subtitles = FALSE, xlim = c(0,1), ylim = c(0, 1), main = "Calibrate plot")
+lines(cal1[, c("mean.predicted", "KM")], type = "l", lwd = 2, col ="#00468B99", pch = 16)
+abline(0, 1, lty = 3, lwd = 2, col ="#1B191999")
+
+
+cph2 <- cph(Surv(OS, Status) ~points, data =dd, x = TRUE,
+            y = TRUE, surv = TRUE,time.inc=36)
+cal2 <- calibrate(cph2, cmethod = "KM", method = "boot", u = 36, m = 40, B = 228)
+plot(cal2, lwd = 2, lty = 1, errbar.col ="#AD002A99",
+     xlab = "Nomogram-Predicted OS", ylab = "Actual probability of OS",
+     col ="#AD002A99", subtitles = FALSE, xlim = c(0,1), ylim = c(0, 1), main = "Calibrate plot",add = T)
+lines(cal2[, c("mean.predicted", "KM")], type = "l", lwd = 2, col ="#AD002A99", pch = 16)
+abline(0, 1, lty = 3, lwd = 2, col ="#1B191999")
+
+cph3 <- cph(Surv(OS, Status) ~points, data =dd, x = TRUE,
+            y = TRUE, surv = TRUE,time.inc=60)
+cal3 <- calibrate(cph3, cmethod = "KM", method = "boot", u = 60, m = 40, B = 228)
+plot(cal3, lwd = 2, lty = 1, errbar.col ="#925E9F99",
+     xlab = "Nomogram-Predicted OS", ylab = "Actual probability of OS",
+     col ="#925E9F99", subtitles = FALSE, xlim = c(0,1), ylim = c(0, 1), main = "Calibrate plot",add = T)
+lines(cal3[, c("mean.predicted", "KM")], type = "l", lwd = 2, col ="#925E9F99", pch = 16)
+abline(0, 1, lty = 3, lwd = 2, col ="#1B191999")

@@ -1,0 +1,36 @@
+##列线表 (Nomogram)
+
+library(survival)
+library(rms)
+
+library(VIM)
+data<-read.csv(".csv")
+ddist <- datadist(data)
+options(datadist = 'ddist')
+data <- as.data.frame(data)
+##使用survival程序包中的 coxph 函数构造 Cox回归模型，选择同样的几个变量，然后做Cox回归，同样，我们发现 sex 和ph.ecog 两个变量显著性最高，但是这个函数会给出一个对整体模型的评估
+head(data)
+cph <-  cph(Surv(OS, Status==1) ~score, data = data,x=T,y=T,surv=T)
+cph
+coxph <- coxph(Surv(OS, Status) ~score, data = data)
+coxph
+
+##根据 rms 包中函数cph获得的回归模型，绘制列线表
+
+surv <- Survival(cph) # 建立生存函数
+surv1 <- function(x)surv(1*12,lp=x)  # lp: linear predictor, 用这个函数去
+surv2 <- function(x)surv(1*36,lp=x) 
+surv3 <- function(x)surv(1*60,lp=x) 
+
+nom <- nomogram(cph, fun = list(surv1, surv2, surv3), fun.at = c(0.05, seq(0.1,
+                                                                            0.9, by = 0.05), 0.95), funlabel = c("1 year survival", "3 year survival", "5 year survival"),maxscale=100,lp=F)
+plot(nom)
+
+
+rcorrcens(Surv(OS, Status) ~ predict(cph), data = data)
+
+library(nomogramFormula)##加载nomogramFormula包
+results<-formula_rd(nomogram=nom)
+data$points<-points_cal(formula = results$formula,rd=data)##生成每个个体分数
+pre<-data$points
+

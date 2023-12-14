@@ -1,0 +1,38 @@
+
+getwd()
+
+setwd("")
+
+library(foreign)
+
+work=read.csv('csv', sep=',',header=F)
+
+attach(work)
+
+library("survival")
+library(grid)
+
+library(magrittr)
+
+library(checkmate)
+
+library(forestplot)
+
+library(haven)
+
+forestplot(labeltext=as.matrix(work[,1:4]),mean=work$V5,lower=work$V6,upper=work$V7,
+           is.summary=c(F,F,F,F),xticks=c(0,1,5,10),col=fpColors(box='#4F81BD',summary="#8B008B",lines = 'black',zero = 'black'), clip = c(0, 10),lwd.xaxis=2,zero=1,lwd.zero=2,lineheight= unit(20,'mm'), graphwidth = unit(100,"mm"), colgap=unit(10,"mm"),boxsize=0.2,lwd.ci=3, lty.ci = "solid", ci.vertices.height = 0.05,graph.pos=3)
+
+#[,1:3],将1-3列数据作为文本在图中展示
+#mean=V4,lower=V5,upper=V6， 估计值，上限，下限
+#is.summary，汇总数据，T对应粗体
+#xticks，设置X轴的坐标
+#lwd.xaxis,X轴粗细
+#clip 置信区间范围，超过会自动变成箭头
+#zero，参考线取值
+#lwd.zero参考线粗细
+#lineheight，自动行距
+#colgap，列间距为8
+#boxsize，线中间的方块大小
+#lwd.ci，置信区间线粗细
+#graph.pos，森林图出现在表格第几列

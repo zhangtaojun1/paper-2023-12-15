@@ -1,0 +1,39 @@
+getwd()
+
+setwd("")
+
+library(foreign)
+
+work=read.csv(".csv")
+
+attach(work)
+
+library(survival)
+
+library(rms)
+
+scoxm<-cph(Surv(OS, Status)~work$pnuc,data=work, surv=T)
+
+scoxm<-step(scoxm)
+
+dd<-datadist(work)
+
+options(datadist="dd")
+
+surv<-Survival(scoxm)
+
+surv1<-function(x) surv(1*12, lp=x)
+
+surv2<-function(x) surv(2*12, lp=x)
+
+surv3<-function(x) surv(3*12, lp=x)
+
+
+Cindex <- rcorrcens(Surv(OS,Status)~predict(scoxm))
+
+Cindex 
+
+
+
+
+

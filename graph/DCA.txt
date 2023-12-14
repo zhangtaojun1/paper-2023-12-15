@@ -1,0 +1,95 @@
+setwd("")
+
+library(foreign)
+
+work=read.csv(".csv")
+
+attach(work)
+
+library(survival)
+
+library(rms)
+
+library(rmda)
+
+simple<- decision_curve(PR~RS+TNM8stage3,data = work, family = binomial(link ='logit'),thresholds= seq(0,1, by = 0.01),confidence.intervals =0.95,study.design = 'case-control',
+                        population.prevalence = 0.3)
+
+model1<- decision_curve(PR~RS,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+
+model2<- decision_curve(PR~TNM8stage3,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+
+model3<- decision_curve(PR~sex,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model4<- decision_curve(PR~age,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model5<- decision_curve(PR~CEA,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model6<- decision_curve(PR~CA199,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model7<- decision_curve(PR~Size,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model8<- decision_curve(PR~location,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model9<- decision_curve(PR~Lauren,data = work,
+                        family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                        confidence.intervals= 0.95,study.design = 'case-control',
+                        population.prevalence= 0.3)
+model10<- decision_curve(PR~G,data = work,
+                         family = binomial(link ='logit'), thresholds = seq(0,1, by = 0.01),
+                         confidence.intervals= 0.95,study.design = 'case-control',
+                         population.prevalence= 0.3)
+
+
+
+List<- list(simple,model1,model2,model3,model4,model5,model6,model7,model8,model9,model10)
+
+
+plot_decision_curve(List,curve.names = c('simple','model1','model2','model3','model4','model5','model6','model7','model8','model9','model10'),
+                    col = c('indianred1','steelblue2','aquamarine3',"yellow","green","black","gray","gold","blue","pink","brown"),
+                    confidence.intervals = FALSE,  
+                    cost.benefit.axis = FALSE, 
+                    legend.position = "none")
+
+List<- list(simple,model1)
+
+
+plot_decision_curve(List,curve.names = c('simple','model1'),
+                    col = c('indianred1','steelblue2'),
+                    confidence.intervals = FALSE,  
+                    cost.benefit.axis = FALSE, 
+                    legend.position = "none",lwd=4)
+
+
+par(new=TRUE)
+
+List<- list(model2,model3,model4,model5,model6,model7,model8,model9,model10)
+
+
+plot_decision_curve(List,curve.names = c('model2','model3','model4','model5','model6','model7','model8','model9','model10'),
+                    col = c('aquamarine3',"yellow","green","black","gray","gold","blue","pink","brown"),
+                    confidence.intervals = FALSE,  
+                    cost.benefit.axis = FALSE, 
+                    legend.position = "none",lwd=2.4)
+
+
+
+

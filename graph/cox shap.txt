@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This is a temporary script file.
+"""
+
+
+# 载入数据
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+df = pd.read_csv(r".csv")  
+#data.columns = data.columns.map(lambda row: "_".join(row.lower().split(" ")))
+df
+
+
+import numpy as np
+import shap
+import xgboost
+from sklearn.model_selection import train_test_split
+import matplotlib.pylab as pl
+
+
+duration = np.array(df['OS'])
+event = np.array(df['Event'])
+
+# 将生存状态转换为布尔数组
+event = (event == 1)
+
+# 计算生存时间，如果生存状态为False，将其乘以-1
+y = duration.copy()
+y[event == False] *= -1
+# 从数据集中删除生存时间和生存状态列，得到变量 X
+X = df.drop(['OS', 'Event'], axis=1)
+
+# 将变量 X 和标签 y 转换为 XGBoost 的 DMatrix
+xgb_full = xgboost.DMatrix(X, label=y)
+
+
+# create a train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=7)
+xgb_train = xgboost.DMatrix(X_train, label=y_train)
+xgb_test = xgboost.DMatrix(X_test, label=y_test)
+
+
+# use validation set to choose # of trees
+params = {
+    "eta": 0.002,
+    "max_depth": 3,
+    "objective": "survival:cox",
+    "subsample": 0.5
+}
+model_train = xgboost.train(params, xgb_train, 10000, evals = [(xgb_test, "test")], verbose_eval=1000)
+
+# train final model on the full data set
+params = {
+    "eta": 0.002,
+    "max_depth": 3,
+    "objective": "survival:cox",
+    "subsample": 0.5
+}
+model = xgboost.train(params, xgb_full, 5000, evals = [(xgb_full, "test")], verbose_eval=1000)
+
+def c_statistic_harrell(pred, labels):
+    total = 0
+    matches = 0
+    for i in range(len(labels)):
+        for j in range(len(labels)):
+            if labels[j] > 0 and abs(labels[i]) > labels[j]:
+                total += 1
+                if pred[j] > pred[i]:
+                    matches += 1
+    return matches/total
+c_statistic_harrell(model_train.predict(xgb_test, ntree_limit=5000), y_test)
+
+
+shap_values = shap.TreeExplainer(model).shap_values(X)
+
+
+
+#PDF画shap图小提琴图
+fig, ax = plt.subplots(figsize=(5, 5))
+
+# Capture current backend
+backend_ = plt.get_backend()
+
+# Draw the SHAP plot
+shap.summary_plot(shap_values, X, plot_type="layered_violin", color='coolwarm')
+
+# Restore backend
+plt.switch_backend(backend_)
+
+# Now save that figure
+fig.savefig(r".pdf", format='pdf', bbox_inches='tight')
+
+plt.show() 
+
+
+
+#画条形图
+# Calculate mean absolute SHAP values
+mean_shap_values = np.abs(shap_values).mean(axis=0)
+
+
+
+# Sort features by importance
+sorted_indices = np.argsort(mean_shap_values)
+
+# Create the horizontal bar plot
+plt.figure(figsize=(8, 8))
+bars = plt.barh(range(X.shape[1]), mean_shap_values[sorted_indices])
+
+# Annotate each bar with the corresponding value
+for idx, rect in enumerate(bars):
+    width = rect.get_width()
+    plt.text(1.01 * width, rect.get_y() + rect.get_height() / 2.,
+             f'{width:.2f}', va='center')
+
+# Set feature names as y-axis labels
+plt.yticks(range(X.shape[1]), X.columns[sorted_indices])
+plt.ylabel('Features')
+plt.xlabel('Mean Absolute SHAP Value')
+plt.title('Feature Importance')
+plt.tight_layout()
+
+plt.savefig(r".pdf", format='pdf', dpi=300, bbox_inches="tight")
+
+plt.show()

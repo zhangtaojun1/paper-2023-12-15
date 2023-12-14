@@ -1,0 +1,14 @@
+rm(list = ls())
+library(survival)
+library(dplyr)
+setwd("")
+work=read.csv(".csv")
+
+cox_fit1<-coxph(Surv(OS, Status)~work$points,data=work)
+
+cox_fit2<-coxph(Surv(OS, Status)~work$score,data=work)
+
+cox_fit3<-coxph(Surv(OS, Status)~work$Stage,data=work)
+
+
+anova(cox_fit1,cox_fit2,cox_fit3)

@@ -1,0 +1,57 @@
+setwd("")
+
+library(foreign)
+
+work=read.csv(".csv")    
+
+head(work)
+
+library(timeROC)
+
+library(survival)
+
+model1<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$point,
+                cause=1,weighting="marginal",
+                times=c(60))
+
+model2<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$score,
+                cause=1,weighting="marginal",
+                times=c(60))
+
+model3<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$Stage,
+                cause=1,weighting="marginal",
+                times=c(60))
+model4<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$pdeep,
+                cause=1,weighting="marginal",
+                times=c(60))
+model5<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$pden,
+                cause=1,weighting="marginal",
+                times=c(60))
+model6<-timeROC(T=work$OS,
+                delta=work$Status,marker=work$pnuc,
+                cause=1,weighting="marginal",
+                times=c(60))
+
+
+plot(model1,time=60,col="#AD002A99",lwd=2,title=FALSE)
+plot(model2,time=60,col="#00468B99",add=TRUE,lwd=2,lty=1)
+plot(model3,time=60,col="#42B54099",add=TRUE,lwd=2,lty=1)
+plot(model4,time=60,col="#925E9F99",add=TRUE,lwd=2,lty=1)
+plot(model5,time=60,col="#FDAF9199",add=TRUE,lwd=2,lty=1)
+plot(model6,time=60,col="#ADB6B699",add=TRUE,lwd=2,lty=1)
+
+legend("bottomright",c("nomogram","DLPS","TNM stage","pdeep","pSPA","pNUC"),
+       col=c("#AD002A99","#00468B99","#42B54099","#925E9F99","#FDAF9199","#ADB6B699"),lty=1,lwd=2,x.intersp = 0.4, y.intersp =0.7,bty="n")
+
+
+print(model1)
+print(model2)
+print(model3)
+print(model4)
+print(model5)
+print(model6)

@@ -1,0 +1,28 @@
+
+library(MatchIt)
+setwd("")
+data<-read.csv(".csv")
+library(table1) 
+library(table1) 
+pvalue <- function(x, ...) {
+  # Construct vectors of data y, and groups (strata) g
+  y <- unlist(x)
+  g <- factor(rep(1:length(x), times=sapply(x, length)))
+  if (is.numeric(y)) {
+    # For numeric variables, perform a standard 2-sample t-test
+    p <- t.test(y ~ g)$p.value
+  } else {
+    # For categorical variables, perform a chi-squared test of independence
+    p <- chisq.test(table(y, g))$p.value
+  }
+  # Format the p-value, using an HTML entity for the less-than sign.
+  # The initial empty string places the output on the line below the variable label.
+  c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.030)))
+}
+library(MatchIt)
+set.seed(500)
+m.out <- matchit(data = data,formula =data$Chemotherapy ~ data$Gender+data$T+data$N+data$M+data$Location+data$Size+data$Age+data$Stage+data$Lauren+data$Dif, method = "nearest",distance = "logit",replace = FALSE,caliper = 0.10)
+data_matched<-match.data(m.out)
+table1(~ Age+Gender+Lauren+Location+Dif+Size+OS+T+N+M+Status| data_matched$Chemotherapy,data=data_matched, overall=F, extra.col=list(`P-value`=pvalue))
+
+write.table(data_matched, file=".csv",sep=",",row.names=F)

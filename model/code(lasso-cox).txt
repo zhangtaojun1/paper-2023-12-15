@@ -1,0 +1,48 @@
+library(glmnet) ##Lasso回归
+library(rms)  ## 画列线图；
+library(VIM) ## 包中aggr()函数，判断数据缺失情况
+library(survival) ##  生存分析包
+
+df<-read.csv(".csv")
+a=ncol(df)
+x <- data.matrix(df[,4:a])
+y <- data.matrix(Surv(df$OS,df$Status))
+##筛选变量
+set.seed(123456)
+fit3 <- cv.glmnet(x,y,family="cox", alpha=1,nfolds=10)
+plot(fit3)
+
+
+fit3$lambda.min
+
+fit3$lambda.1se
+
+fit3.coef.lambda.lse<-coef(fit3,s= fit3$lambda.min)
+
+fit3.coef.lambda.lse
+
+fit3.lse.out<-fit3.coef.lambda.lse[which(fit3.coef.lambda.lse !=0),]
+
+fit3.lse.out<-round(fit3.lse.out,4)
+
+fit3.lse.out
+
+
+##输出结果
+fit3.lse.out2<-matrix(fit3.lse.out,length(fit3.lse.out),1)
+
+rownames(fit3.lse.out2)<-names(fit3.lse.out)
+
+colnames(fit3.lse.out2)<-c("coef")
+
+fit3.lse.out2
+
+write.csv (fit3.lse.out2, file =".csv")
+
+fit3.lse.out3<-fit3.lse.out2[-1,]
+
+fit3.lse.out3[order(abs(fit3.lse.out3), decreasing=TRUE)]
+
+write.csv (fit3.lse.out3[order(abs(fit3.lse.out3), decreasing=TRUE)], file =".csv")
+
+

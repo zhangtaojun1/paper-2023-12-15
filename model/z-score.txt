@@ -1,0 +1,14 @@
+
+
+setwd("")
+
+rna <- read.csv(".csv")
+
+
+
+data_zscore=scale(rna)
+
+A<-data.frame(data_zscore)
+
+
+write.csv (A, file =".csv")

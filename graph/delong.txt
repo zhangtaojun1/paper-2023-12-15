@@ -1,0 +1,20 @@
+setwd("")
+
+library(foreign)
+
+work=read.csv("csv")
+library(pROC)
+# 提取真实观测值和预测得分
+status <- work$Status
+score_model2 <- work$points
+score_model4 <- work$Stage
+
+# 计算model2和model4的ROC曲线
+roc_model2 <- roc(status, score_model2)
+roc_model4 <- roc(status, score_model4)
+
+# 比较model2和model4的5年ROC曲线
+result <- roc.test(roc_model2, roc_model4, method = "delong", time1 = 36, time2 =36)
+
+# 打印比较结果
+print(result)

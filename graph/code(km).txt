@@ -1,0 +1,9 @@
+library(survminer) # 加载包
+library(survival)
+setwd("")
+
+data<-read.csv(".csv")
+fit <- survfit(Surv(data$OS,data$Status) ~ data$group,data = data)
+plot1<-ggsurvplot(fit,data=data,conf.int = F, risk.table.col = "strata",  ggtheme = theme_classic2(),pval = F,palette = c("#1d2a75","#bc92bc"),surv.median.line = "none",xlim = c(0, 100),break.time.by=20,xlab="Time(months)",ylab="OS",legend ="right",legend.labs = c("Low","High"),censor=T)
+plot1
+3*5
